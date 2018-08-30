@@ -28,7 +28,10 @@ if [ $# -eq 0 ]; then
             --mount type=bind,source=$(pwd)/open_ptrack_config/tracking/conf/,destination=/root/workspace/ros/src/open_ptrack/tracking/conf/ \
             --mount type=bind,source=$(pwd)/open_ptrack_config/yolo_detector/launch/,destination=/root/workspace/ros/src/open_ptrack/yolo_detector/launch/ \
             --net=host \
-            --device /dev/bus/usb:/dev/bus/usb \
+	    --device /dev/bus/usb:/dev/bus/usb \
+            --device /dev/video0:/dev/video0 \
+            --device /dev/video1:/dev/video1 \
+            --device /dev/video2:/dev/video2 \
             --name $container_name \
             openptrack/open_ptrack bash
     fi
