@@ -1,10 +1,12 @@
-<?xml version="1.0"?>
 <launch>
   <arg name="serial_no"             default=""/>
   <arg name="json_file_path"        default=""/>
   <arg name="camera"                default="camera"/>
+  <arg name="camera_name"             default="kinect2_head" />
 
   <group ns="$(arg camera)">
+
+    <!-- Start realsense camera -->
     <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
       <arg name="serial_no"         value="$(arg serial_no)"/>
       <arg name="json_file_path"    value="$(arg json_file_path)"/>
@@ -24,24 +26,19 @@
       <arg name="enable_sync"       value="true"/>
     </include>
 
+    <!-- People tracking -->
+
+    <node pkg="detection" type="ground_based_people_detector" name="ground_based_people_detector" output="screen" respawn="true">
+      <rosparam command="load" file="$(find detection)/conf/ground_based_people_detector_realsense.yaml" /> 
+      <param name="classifier_file" value="$(find detection)/data/HogSvmPCL.yaml"/>
+      <param name="output_topic" value="/detector/detections"/>
+      <param name="rate" value="60.0"/>  
+    </node>
+    
+    <include file="$(find tracking)/launch/tracker_single.launch"/>
+
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
 
-  <arg name="enable_people_tracking" default="true" />
-  <arg name="input_topic" value="/detector/detections" />
-  <arg name="camera_id" default="realsense"/>
-
-  <!-- Launch ground based people detection node -->
-  <node pkg="detection" type="ground_based_people_detector_sr"
-        name="ground_based_people_detector_$(arg camera_id)" output="screen" respawn="true">
-    
-    <rosparam command="load" file="/root/workspace/ros/src/open_ptrack/detection/" /> 
-    
-    <param name="classifier_file"                   value="$(find detection)/data/HogSvmPCL.yaml"/>
-    <param name="camera_info_topic"                 value="/$(arg camera_id)/camera_info"/>
-    <param name="rate"                              value="60.0"/>  
-    
-   </node>
   </group>
-
 
 </launch>
