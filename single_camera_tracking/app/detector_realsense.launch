@@ -1,44 +1,35 @@
+<?xml version="1.0"?>
+<!-- SESSION ID: 1500506803 -->
 <launch>
-  <arg name="serial_no"             default=""/>
-  <arg name="json_file_path"        default=""/>
-  <arg name="camera"                default="camera"/>
-  <arg name="camera_name"             default="kinect2_head" />
 
-  <group ns="$(arg camera)">
+  <arg default="true" name="enable_people_tracking"/>
+  <arg default="true" name="enable_pose"/>
 
-    <!-- Start realsense camera -->
-    <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml">
-      <arg name="serial_no"         value="$(arg serial_no)"/>
-      <arg name="json_file_path"    value="$(arg json_file_path)"/>
-      <arg name="depth_width"       value="640"/>
-      <arg name="depth_height"      value="480"/>
-      <arg name="depth_fps"         value="30"/>
-      <arg name="color_width"       value="640"/>
-      <arg name="color_height"      value="480"/>
-      <arg name="color_fps"         value="30"/>
-      <arg name="enable_depth"      value="true"/>
-      <arg name="enable_color"      value="true"/>
-      <arg name="enable_infra1"     value="false"/>
-      <arg name="enable_infra2"     value="false"/>
-      <arg name="enable_fisheye"    value="false"/>
-      <arg name="enable_imu"        value="false"/>
-      <arg name="enable_pointcloud" value="true"/>
-      <arg name="enable_sync"       value="true"/>
-    </include>
+  <arg default="kinect2_head" name="sensor_name"/>
 
+  <include file="$(find realsense2_camera)/launch/rs_rgbd.launch"/>
+
+  <group if="$(arg enable_people_tracking)">
     <!-- People tracking -->
-
-    <node pkg="detection" type="ground_based_people_detector" name="ground_based_people_detector" output="screen" respawn="true">
-      <rosparam command="load" file="$(find detection)/conf/ground_based_people_detector_realsense.yaml" /> 
-      <param name="classifier_file" value="$(find detection)/data/HogSvmPCL.yaml"/>
-      <param name="output_topic" value="/detector/detections"/>
-      <param name="rate" value="60.0"/>  
-    </node>
-    
+    <include file="detector_depth_real.launch"/>
     <include file="$(find tracking)/launch/tracker_single.launch"/>
-
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find realsense2_camera)/rviz/pointcloud.rviz" required="true" />
-
   </group>
+
+  <group if="$(arg enable_pose)">
+    <!-- Skeleton tracking -->
+    <include file="skeleton_detector_realsense.launch">
+      <arg name="sensor_name" value="$(arg sensor_name)"/>
+    </include>
+    <include file="$(find tracking)/launch/skeleton_tracker_single.launch">
+      <arg name="input_topic" value="/detector/skeletons"/>
+    </include>
+    <!-- Pose recognition -->
+    <include file="$(find pose_recognition)/launch/pose_recognition.launch"/>
+  </group>
+
+  <!-- UDP messaging -->
+  <include file="$(find opt_utils)/launch/ros2udp_converter.launch"/>
+  <!-- Visualization -->
+  <include file="$(find opt_utils)/launch/multicamera_visualization.launch"/>
 
 </launch>
