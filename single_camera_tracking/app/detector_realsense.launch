@@ -2,8 +2,9 @@
 <!-- SESSION ID: 1500506803 -->
 <launch>
 
-  <arg default="true" name="enable_people_tracking"/>
-  <arg default="true" name="enable_pose"/>
+  <arg name="enable_people_tracking" default="true" />
+  <arg name="enable_pose" default="false" />
+  <arg name="enable_object" default="true" />
 
   <arg default="kinect2_head" name="sensor_name"/>
 
@@ -26,6 +27,23 @@
     <!-- Pose recognition -->
     <include file="$(find pose_recognition)/launch/pose_recognition.launch"/>
   </group>
+
+
+  <group if="$(arg enable_object)">
+    <!-- Object Tracking -->
+  <include file="detect_yolo_object_realsense_network.launch">
+    <arg name="sensor_name"             value="$(arg sensor_name)" />
+  </include>
+
+  <node pkg="detection" type="multiple_objects_detection_node" name="multiple_objects_detection" output="screen" required="true">
+   <rosparam command="load"                        file="$(find detection)/conf/multiple_objects_detection.yaml" />
+   <param name="set_object_names" value="true" />
+  </node>
+
+  <include file="$(find tracking)/launch/object_tracker_single.launch" />
+
+  </group>
+
 
   <!-- UDP messaging -->
   <include file="$(find opt_utils)/launch/ros2udp_converter.launch"/>
