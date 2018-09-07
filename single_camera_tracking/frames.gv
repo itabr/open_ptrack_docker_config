@@ -1,0 +1,11 @@
+digraph G {
+"kinect2_head_link" -> "kinect2_head_rgb_frame"[label="Broadcaster: /kinect2_head_base_link\nAverage rate: 10.195 Hz\nMost recent transform: 1536186185.081 ( -0.052 sec old)\nBuffer length: 4.904 sec\n"];
+"kinect2_head_ir_frame" -> "kinect2_head_ir_optical_frame"[label="Broadcaster: /kinect2_head_base_link2\nAverage rate: 10.195 Hz\nMost recent transform: 1536186185.086 ( -0.057 sec old)\nBuffer length: 4.904 sec\n"];
+"kinect2_head_link" -> "kinect2_head_ir_frame"[label="Broadcaster: /kinect2_head_base_link1\nAverage rate: 10.198 Hz\nMost recent transform: 1536186185.033 ( -0.004 sec old)\nBuffer length: 4.805 sec\n"];
+"kinect2_head_ir_optical_frame" -> "world"[label="Broadcaster: /tracker_node\nAverage rate: 11.020 Hz\nMost recent transform: 1536186185.018 ( 0.011 sec old)\nBuffer length: 4.900 sec\n"];
+"kinect2_head_rgb_frame" -> "kinect2_head_rgb_optical_frame"[label="Broadcaster: /kinect2_head_base_link3\nAverage rate: 10.198 Hz\nMost recent transform: 1536186185.033 ( -0.004 sec old)\nBuffer length: 4.805 sec\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1536186185.029"[ shape=plaintext ] ;
+ }->"kinect2_head_link";
+}

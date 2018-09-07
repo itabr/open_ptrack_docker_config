@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- SESSION ID: 1500506803 -->
+<launch>
+
+  <arg name="enable_people_tracking" default="true" />
+  <arg name="enable_pose" default="true" />
+  <arg name="enable_object" default="true" />
+  <arg name="sensor_name" default="kinect2_head" />
+  <!-- Load calibration results -->
+
+  <include file="$(find realsense2_camera)/launch/rs_aligned_depth.launch">
+<!--     <arg name="publish_frame" value="true" />
+    <arg name="sensor_name" value="$(arg sensor_name)" />
+ -->  
+  </include>
+
+  <group if="$(arg enable_people_tracking)">
+  <!-- People tracking -->
+  <include file="detector_depth_real.launch"/>
+  <include file="$(find tracking)/launch/tracker_single.launch"/>
+  </group>
+
+  <!-- UDP messaging -->
+  <include file="$(find opt_utils)/launch/ros2udp_converter.launch"/>
+
+  <!-- Visualization -->
+  <include file="$(find opt_utils)/launch/multicamera_visualization.launch"/>
+</launch>
